@@ -17,6 +17,7 @@ export interface Gym {
   gstin: string;
   invoice_prefix: string;
   subscription_tier: "basic" | "pro";
+  notifications_enabled: boolean;
 }
 
 export interface CurrentUser {

@@ -74,7 +74,7 @@ def test_branches_are_gym_scoped(two_gyms):
     client = _auth_client(two_gyms["owner_a"])
     resp = client.get(reverse("branch-list"))
     assert resp.status_code == 200
-    data = resp.json()["data"]
+    data = resp.json()["data"]["results"]
     ids = {b["id"] for b in data}
     assert two_gyms["branch_a"].id in ids
     assert two_gyms["branch_b"].id not in ids  # cross-tenant read = 0
