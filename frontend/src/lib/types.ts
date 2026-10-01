@@ -48,7 +48,7 @@ export interface AddOn {
   updated_at: string;
 }
 
-export type MembershipStatus = "active" | "expired" | "cancelled";
+export type MembershipStatus = "active" | "expired" | "cancelled" | "frozen";
 
 export interface MembershipAddOn {
   id: number;
@@ -57,6 +57,16 @@ export interface MembershipAddOn {
   addon_type: string;
   price_paise: number;
   auto_applied: boolean;
+}
+
+export interface Freeze {
+  id: number;
+  freeze_start_date: string;
+  freeze_end_date: string | null;
+  days_added: number;
+  reason: string;
+  completed: boolean;
+  created_at: string;
 }
 
 export interface Membership {
@@ -77,7 +87,9 @@ export interface Membership {
   cancel_reason: string;
   previous: number | null;
   addons: MembershipAddOn[];
+  freezes: Freeze[];
   net_paid_paise: number;
+  total_days_added: number;
   created_at: string;
 }
 

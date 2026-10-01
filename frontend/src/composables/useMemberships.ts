@@ -92,6 +92,24 @@ export function useCorrectMembership() {
   });
 }
 
+export function useFreezeMembership() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (args: { id: number; start_date?: string; reason?: string }) =>
+      unwrap(api.post(`/memberships/${args.id}/freeze/`, args)),
+    onSuccess: () => invalidate(qc),
+  });
+}
+
+export function useUnfreezeMembership() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (args: { id: number; end_date?: string; reason?: string }) =>
+      unwrap(api.post(`/memberships/${args.id}/unfreeze/`, args)),
+    onSuccess: () => invalidate(qc),
+  });
+}
+
 export async function fetchCanCorrect(id: number) {
   return unwrap<{ allowed: boolean; reason: string }>(
     api.get(`/memberships/${id}/can-correct/`),
