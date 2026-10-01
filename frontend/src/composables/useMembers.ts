@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
-import { type MaybeRefOrGetter, toValue } from "vue";
+import { computed, type MaybeRefOrGetter, toValue } from "vue";
 
 import { api, unwrap } from "@/lib/api";
 import type { ImportResult, Member, Paginated } from "@/lib/types";
@@ -14,7 +14,7 @@ export interface MemberListParams {
 
 export function useMembers(params: MaybeRefOrGetter<MemberListParams>) {
   return useQuery({
-    queryKey: ["members", params],
+    queryKey: computed(() => ["members", toValue(params)]),
     queryFn: () =>
       unwrap<Paginated<Member>>(
         api.get("/members/", { params: toValue(params) }),
@@ -24,7 +24,7 @@ export function useMembers(params: MaybeRefOrGetter<MemberListParams>) {
 
 export function useMember(id: MaybeRefOrGetter<number | null>) {
   return useQuery({
-    queryKey: ["member", id],
+    queryKey: computed(() => ["member", toValue(id)]),
     enabled: () => toValue(id) != null,
     queryFn: () => unwrap<Member>(api.get(`/members/${toValue(id)}/`)),
   });

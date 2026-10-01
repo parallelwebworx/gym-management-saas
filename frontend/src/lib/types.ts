@@ -48,6 +48,62 @@ export interface AddOn {
   updated_at: string;
 }
 
+export type MembershipStatus = "active" | "expired" | "cancelled";
+
+export interface MembershipAddOn {
+  id: number;
+  addon: number;
+  name: string;
+  addon_type: string;
+  price_paise: number;
+  auto_applied: boolean;
+}
+
+export interface Membership {
+  id: number;
+  member: number;
+  member_name: string;
+  plan: number;
+  plan_name: string;
+  duration_days: number;
+  plan_price_paise: number;
+  start_date: string;
+  end_date: string;
+  original_end_date: string;
+  status: MembershipStatus;
+  correction_count: number;
+  cancelled_at: string | null;
+  cancel_effective_date: string | null;
+  cancel_reason: string;
+  previous: number | null;
+  addons: MembershipAddOn[];
+  net_paid_paise: number;
+  created_at: string;
+}
+
+export type PaymentKind = "enrollment" | "renewal" | "refund" | "adjustment";
+export type PaymentMethod = "cash" | "card" | "upi" | "bank" | "other";
+
+export interface Payment {
+  id: number;
+  member: number;
+  member_name: string;
+  membership: number | null;
+  kind: PaymentKind;
+  method: PaymentMethod;
+  amount_paise: number;
+  discount_paise: number;
+  invoice_number: string;
+  refund_of: number | null;
+  reason: string;
+  edited: boolean;
+  edited_at: string | null;
+  original_amount_paise: number | null;
+  created_by: number | null;
+  created_by_name: string | null;
+  created_at: string;
+}
+
 export interface ImportRow {
   row: number;
   full_name: string;

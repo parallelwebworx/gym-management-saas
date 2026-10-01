@@ -39,6 +39,9 @@ INSTALLED_APPS = [
     "tenants",
     "catalogue",
     "members",
+    "memberships",
+    "payments",
+    "audit",
 ]
 
 MIDDLEWARE = [

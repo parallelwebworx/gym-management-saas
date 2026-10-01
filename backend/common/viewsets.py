@@ -12,7 +12,27 @@ from common.permissions import IsAuthenticatedInGym
 from tenants.models import Role
 
 
-class TenantScopedViewSet(viewsets.ModelViewSet):
+class EnvelopeResponseMixin:
+    """Wrap successful, non-enveloped bodies in ``{ok: true, data: ...}``.
+
+    Paginated list responses and error bodies are already enveloped, so they pass
+    through untouched. File downloads (plain ``HttpResponse``) are left alone.
+    """
+
+    def finalize_response(self, request, response, *args, **kwargs):
+        from django.http import HttpResponse
+        from rest_framework.response import Response
+
+        if isinstance(response, HttpResponse) and not isinstance(response, Response):
+            return response
+        data = getattr(response, "data", None)
+        is_envelope = isinstance(data, dict) and "ok" in data
+        if 200 <= response.status_code < 300 and not is_envelope:
+            response.data = {"ok": True, "data": data}
+        return super().finalize_response(request, response, *args, **kwargs)
+
+
+class TenantScopedViewSet(EnvelopeResponseMixin, viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedInGym]
     # Set to True on viewsets whose model has a meaningful branch scope.
     branch_scoped = True
@@ -32,15 +52,3 @@ class TenantScopedViewSet(viewsets.ModelViewSet):
         if self.branch_scoped and user.branch_id:
             kwargs["branch_id"] = user.branch_id
         serializer.save(**kwargs)
-
-    def finalize_response(self, request, response, *args, **kwargs):
-        """Wrap successful, non-enveloped bodies in ``{ok: true, data: ...}``.
-
-        Paginated list responses and error bodies are already enveloped, so they
-        pass through untouched.
-        """
-        data = getattr(response, "data", None)
-        is_envelope = isinstance(data, dict) and "ok" in data
-        if 200 <= response.status_code < 300 and not is_envelope:
-            response.data = {"ok": True, "data": data}
-        return super().finalize_response(request, response, *args, **kwargs)
