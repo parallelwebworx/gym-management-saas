@@ -38,6 +38,16 @@ const routes = [
         name: "payments",
         component: () => import("@/pages/PaymentsView.vue"),
       },
+      {
+        path: "reports",
+        name: "reports",
+        component: () => import("@/pages/ReportsView.vue"),
+      },
+      {
+        path: "audit",
+        name: "audit",
+        component: () => import("@/pages/AuditLogView.vue"),
+      },
     ],
   },
 ];
