@@ -10,7 +10,8 @@ import FreezeDialog from "@/components/FreezeDialog.vue";
 import RefundDialog from "@/components/RefundDialog.vue";
 import { useMember } from "@/composables/useMembers";
 import { useMemberMemberships } from "@/composables/useMemberships";
-import { usePayments } from "@/composables/usePayments";
+import { useNotifications, useResendNotification } from "@/composables/useNotifications";
+import { openInvoicePdf, usePayments } from "@/composables/usePayments";
 import { formatPaise } from "@/lib/money";
 import type { Membership, Payment } from "@/lib/types";
 import { useAuthStore } from "@/stores/auth";
@@ -24,6 +25,8 @@ const isOwner = computed(() => auth.role === "owner");
 const { data: member, isLoading, isError } = useMember(id);
 const { data: memberships } = useMemberMemberships(id);
 const { data: payments } = usePayments(() => ({ member: id.value }));
+const { data: notifications } = useNotifications(() => ({ member: id.value }));
+const resendNotification = useResendNotification();
 
 const current = computed<Membership | null>(() => memberships.value?.results[0] ?? null);
 const hasActive = computed(() => current.value?.status === "active");
@@ -164,11 +167,43 @@ const kindClass: Record<string, string> = {
               </td>
               <td class="px-4 py-2 capitalize">{{ p.method }}</td>
               <td class="px-4 py-2 text-slate-500">{{ new Date(p.created_at).toLocaleDateString() }}</td>
-              <td class="px-4 py-2 text-right">
+              <td class="px-4 py-2 text-right whitespace-nowrap">
+                <button class="text-slate-500 hover:text-slate-800 mr-3" @click="openInvoicePdf(p.id)">Invoice</button>
                 <template v-if="isOwner && p.kind !== 'refund'">
                   <button class="text-slate-500 hover:text-slate-800 mr-3" @click="editOf = p">Edit</button>
                   <button class="text-red-500 hover:text-red-700" @click="refundOf = p">Refund</button>
                 </template>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Notifications / messages -->
+      <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
+        <h2 class="px-6 pt-4 font-medium text-slate-700">Messages</h2>
+        <table class="w-full text-sm mt-2">
+          <thead class="bg-slate-50 text-left text-slate-500">
+            <tr>
+              <th class="px-6 py-2">Event</th><th class="px-4 py-2">Channel</th>
+              <th class="px-4 py-2">Status</th><th class="px-4 py-2">When</th>
+              <th class="px-4 py-2 w-24"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="notifications && notifications.results.length === 0"><td colspan="5" class="px-6 py-6 text-center text-slate-400">No messages yet.</td></tr>
+            <tr v-for="n in notifications?.results" :key="n.id" class="border-t">
+              <td class="px-6 py-2 capitalize">{{ n.event }}</td>
+              <td class="px-4 py-2 uppercase text-xs">{{ n.channel }}</td>
+              <td class="px-4 py-2">
+                <span class="rounded px-2 py-0.5 text-xs capitalize"
+                      :class="n.status === 'sent' ? 'bg-emerald-100 text-emerald-700' : n.status === 'failed' ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-500'">
+                  {{ n.status }}
+                </span>
+              </td>
+              <td class="px-4 py-2 text-slate-500">{{ n.sent_at ? new Date(n.sent_at).toLocaleString() : "—" }}</td>
+              <td class="px-4 py-2 text-right">
+                <button v-if="isOwner && n.status !== 'sent'" class="text-slate-500 hover:text-slate-800" @click="resendNotification.mutate(n.id)">Resend</button>
               </td>
             </tr>
           </tbody>

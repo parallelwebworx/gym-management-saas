@@ -15,6 +15,8 @@ from common.errors import ServiceError
 from members.models import Member
 from memberships.models import Freeze, Membership, MembershipAddOn, MembershipStatus
 from memberships.permissions import can_correct_membership
+from notifications.models import NotificationEvent
+from notifications.service import queue_notification
 from payments.models import (
     Payment,
     PaymentKind,
@@ -129,6 +131,8 @@ def enroll(*, gym, actor, member_id, plan_id, addon_ids=None, discount_paise=0,
         after={"plan": plan.name, "total_paise": total, "paid_paise": amount},
         summary=f"Enrolled in {plan.name}",
     )
+    queue_notification(gym=gym, event=NotificationEvent.ENROLLMENT,
+                       membership=membership, payment=payment)
     return membership, payment
 
 
@@ -184,6 +188,8 @@ def renew(*, gym, actor, membership_id, plan_id, addon_ids=None, discount_paise=
                "previous_membership": previous.id},
         summary=f"Renewed into {plan.name}",
     )
+    queue_notification(gym=gym, event=NotificationEvent.RENEWAL,
+                       membership=membership, payment=payment)
     return membership, payment
 
 
@@ -239,6 +245,7 @@ def correct_membership(*, gym, actor, membership_id, plan_id=None, start_date=No
                "end_date": membership.end_date.isoformat(), "reason": reason},
         summary=f"Corrected membership (#{membership.correction_count})",
     )
+    queue_notification(gym=gym, event=NotificationEvent.CORRECTION, membership=membership)
     return membership
 
 
@@ -281,6 +288,7 @@ def cancel_membership(*, gym, actor, membership_id, effective_date, prorated_ref
                "prorated_refund_paise": (-refund.amount_paise if refund else 0), "reason": reason},
         summary="Cancelled membership",
     )
+    queue_notification(gym=gym, event=NotificationEvent.CANCELLATION, membership=membership)
     return membership, refund
 
 

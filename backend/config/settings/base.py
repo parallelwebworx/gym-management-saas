@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     "audit",
     "engagement",
     "reports",
+    "notifications",
+    "invoices",
 ]
 
 MIDDLEWARE = [
@@ -150,3 +152,17 @@ CORS_ALLOWED_ORIGINS = env.list(
 # Money is stored as integer paise everywhere. GST @ 18%, HSN 999723.
 GST_RATE_BPS = 1800  # 18.00%
 GST_HSN_CODE = "999723"
+
+# --- Celery ---------------------------------------------------------------
+CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default="")
+# When true, tasks run inline (no broker needed) — handy for dev/tests.
+CELERY_TASK_ALWAYS_EAGER = env.bool("CELERY_TASK_ALWAYS_EAGER", default=False)
+CELERY_TASK_EAGER_PROPAGATES = True
+
+# --- Notifications --------------------------------------------------------
+# Provider: "stub" (logs, always succeeds) or "msg91". Secrets come from env only.
+NOTIFICATION_PROVIDER = env("NOTIFICATION_PROVIDER", default="stub")
+MSG91_API_KEY = env("MSG91_API_KEY", default="")
+MSG91_SENDER_ID = env("MSG91_SENDER_ID", default="GYMAPP")
+NOTIFICATION_MAX_ATTEMPTS = 3

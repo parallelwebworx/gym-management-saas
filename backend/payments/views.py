@@ -75,6 +75,12 @@ class PaymentViewSet(
                    "refund_of": original.invoice_number, "reason": refund.reason},
             summary=f"Refunded {refund.invoice_number}",
         )
+        from notifications.models import NotificationEvent
+        from notifications.service import queue_notification
+        queue_notification(
+            gym=user.gym, event=NotificationEvent.REFUND,
+            member=refund.member, membership=refund.membership, payment=refund,
+        )
         return ok({"refund": PaymentSerializer(refund).data}, status=201)
 
     @action(detail=True, methods=["post"])
