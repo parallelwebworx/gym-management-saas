@@ -18,6 +18,21 @@ const routes = [
         name: "dashboard",
         component: () => import("@/pages/DashboardView.vue"),
       },
+      {
+        path: "members",
+        name: "members",
+        component: () => import("@/pages/MembersView.vue"),
+      },
+      {
+        path: "members/:id",
+        name: "member-detail",
+        component: () => import("@/pages/MemberDetailView.vue"),
+      },
+      {
+        path: "catalogue",
+        name: "catalogue",
+        component: () => import("@/pages/CatalogueView.vue"),
+      },
     ],
   },
 ];

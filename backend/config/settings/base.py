@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     # local
     "common",
     "tenants",
+    "catalogue",
+    "members",
 ]
 
 MIDDLEWARE = [
