@@ -1,7 +1,6 @@
 from django.db import connection
 from django.http import HttpResponse
 from rest_framework.decorators import action
-from rest_framework.response import Response
 
 from common.permissions import MemberPermission
 from common.phone import normalize_phone_in
@@ -140,9 +139,3 @@ class MemberViewSet(TenantScopedViewSet):
         )
         resp["Content-Disposition"] = 'attachment; filename="members.xlsx"'
         return resp
-
-    def finalize_response(self, request, response, *args, **kwargs):
-        # File downloads (HttpResponse) must not be wrapped in the JSON envelope.
-        if isinstance(response, HttpResponse) and not isinstance(response, Response):
-            return response
-        return super().finalize_response(request, response, *args, **kwargs)

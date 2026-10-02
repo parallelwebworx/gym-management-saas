@@ -20,6 +20,7 @@ const nav = computed(() => {
     { label: "Today", to: "/", roles: ["owner", "branch_manager", "receptionist"] },
     { label: "Members", to: "/members", roles: ["owner", "branch_manager", "receptionist"] },
     { label: "Catalogue", to: "/catalogue", roles: ["owner", "branch_manager"] },
+    { label: "Payments", to: "/payments", roles: ["owner", "branch_manager"] },
     { label: "Reports", to: "/reports", roles: ["owner", "branch_manager"] },
     { label: "Audit Log", to: "/audit", roles: ["owner", "branch_manager"] },
     { label: "Settings", to: "/settings", roles: ["owner"] },
