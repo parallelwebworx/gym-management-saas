@@ -5,8 +5,8 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from common.responses import err, ok
-from tenants.models import Branch, User
-from tenants.serializers import BranchSerializer, MeSerializer
+from tenants.models import User
+from tenants.serializers import MeSerializer
 
 
 def _issue_tokens(user):
@@ -73,13 +73,3 @@ class ForgotPasswordView(APIView):
     def post(self, request):
         # Intentionally does not reveal whether the email exists.
         return ok({"message": "If the account exists, a reset link has been sent."})
-
-
-class BranchListView(APIView):
-    """Branches visible to the current user's gym."""
-
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        qs = Branch.objects.filter(gym_id=request.user.gym_id, deleted_at__isnull=True)
-        return ok(BranchSerializer(qs, many=True).data)

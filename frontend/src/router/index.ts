@@ -48,6 +48,11 @@ const routes = [
         name: "audit",
         component: () => import("@/pages/AuditLogView.vue"),
       },
+      {
+        path: "settings",
+        name: "settings",
+        component: () => import("@/pages/SettingsView.vue"),
+      },
     ],
   },
 ];

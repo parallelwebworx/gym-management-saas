@@ -30,6 +30,7 @@ class Gym(models.Model):
     subscription_tier = models.CharField(
         max_length=10, choices=SubscriptionTier.choices, default=SubscriptionTier.BASIC
     )
+    notifications_enabled = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(null=True, blank=True)

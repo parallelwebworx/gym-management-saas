@@ -127,9 +127,13 @@ REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "common.exceptions.envelope_exception_handler",
     "DEFAULT_THROTTLE_CLASSES": (
         "rest_framework.throttling.ScopedRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+        "rest_framework.throttling.AnonRateThrottle",
     ),
     "DEFAULT_THROTTLE_RATES": {
         "auth": "20/min",
+        "user": "1000/min",
+        "anon": "60/min",
     },
 }
 

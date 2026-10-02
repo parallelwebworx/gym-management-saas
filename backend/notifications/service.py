@@ -26,6 +26,8 @@ def queue_notification(*, gym, event, member=None, membership=None, payment=None
     """Create a PENDING notification (within the current transaction) and schedule
     delivery once that transaction commits. Returns the Notification, or None if
     there's no phone to send to."""
+    if not gym.notifications_enabled:
+        return None
     if member is None and membership is not None:
         member = membership.member
     if member is None or not member.phone:
