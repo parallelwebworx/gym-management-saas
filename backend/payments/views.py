@@ -66,6 +66,15 @@ class PaymentViewSet(
             msg = getattr(e, "message", str(e))
             code = getattr(e, "code", "bad_refund")
             return err(msg, code=code)
+
+        from audit import services as audit
+        from audit.models import AuditAction
+        audit.record(
+            actor=user, action=AuditAction.REFUND, entity=refund,
+            after={"amount_paise": refund.amount_paise, "invoice": refund.invoice_number,
+                   "refund_of": original.invoice_number, "reason": refund.reason},
+            summary=f"Refunded {refund.invoice_number}",
+        )
         return ok({"refund": PaymentSerializer(refund).data}, status=201)
 
     @action(detail=True, methods=["post"])
