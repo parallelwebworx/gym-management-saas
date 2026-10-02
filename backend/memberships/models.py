@@ -23,7 +23,7 @@ class MembershipStatus(models.TextChoices):
     ACTIVE = "active", "Active"
     EXPIRED = "expired", "Expired"
     CANCELLED = "cancelled", "Cancelled"
-    # FROZEN arrives in Phase 3.
+    FROZEN = "frozen", "Frozen"
 
 
 class Membership(TenantScoped):
@@ -64,10 +64,27 @@ class Membership(TenantScoped):
             self.original_end_date = self.end_date
         super().save(*args, **kwargs)
 
-    def status_on(self, today=None) -> str:
+    def is_frozen_on(self, today=None, freezes=None) -> bool:
+        """True if an (open or still-running) freeze covers ``today``.
+
+        ``freezes`` may be a prefetched iterable to avoid an extra query in lists.
+        """
         today = today or ist_today()
+        rows = freezes if freezes is not None else self.freezes.all()
+        for f in rows:
+            if f.freeze_start_date <= today and (
+                f.freeze_end_date is None or today < f.freeze_end_date
+            ):
+                return True
+        return False
+
+    def status_on(self, today=None, freezes=None) -> str:
+        today = today or ist_today()
+        # Precedence: cancelled > frozen > active > expired.
         if self.cancel_effective_date and today >= self.cancel_effective_date:
             return MembershipStatus.CANCELLED
+        if self.is_frozen_on(today, freezes):
+            return MembershipStatus.FROZEN
         if today <= self.end_date:
             return MembershipStatus.ACTIVE
         return MembershipStatus.EXPIRED
@@ -82,6 +99,36 @@ class Membership(TenantScoped):
 
     def __str__(self):
         return f"{self.member_id} {self.plan_name} {self.start_date}→{self.end_date}"
+
+
+class Freeze(TenantScoped):
+    """
+    A pause on an active membership. While a freeze is open (no end date) and has
+    started, the membership reads as FROZEN. On unfreeze, ``days_added`` records
+    the frozen-day count and the membership's ``end_date`` is extended by exactly
+    that many days — so ``Σ days_added`` always equals ``end_date - original_end_date``.
+    ``completed`` is derived at read time (a freeze is completed once it has an end).
+    """
+
+    membership = models.ForeignKey(Membership, on_delete=models.CASCADE, related_name="freezes")
+    freeze_start_date = models.DateField()
+    freeze_end_date = models.DateField(null=True, blank=True)
+    days_added = models.PositiveIntegerField(default=0)
+    reason = models.CharField(max_length=255, blank=True, default="")
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="freezes_created"
+    )
+
+    class Meta:
+        ordering = ["-freeze_start_date"]
+        indexes = [models.Index(fields=["gym", "membership"])]
+
+    @property
+    def completed(self) -> bool:
+        return self.freeze_end_date is not None
+
+    def __str__(self):
+        return f"freeze m={self.membership_id} {self.freeze_start_date}→{self.freeze_end_date or 'open'}"
 
 
 class MembershipAddOn(TenantScoped):

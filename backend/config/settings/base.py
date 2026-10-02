@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "memberships",
     "payments",
     "audit",
+    "engagement",
 ]
 
 MIDDLEWARE = [

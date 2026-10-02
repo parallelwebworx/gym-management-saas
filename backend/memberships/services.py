@@ -13,7 +13,7 @@ from catalogue.models import AddOn, Plan
 from common.dates import ist_today
 from common.errors import ServiceError
 from members.models import Member
-from memberships.models import Membership, MembershipAddOn, MembershipStatus
+from memberships.models import Freeze, Membership, MembershipAddOn, MembershipStatus
 from memberships.permissions import can_correct_membership
 from payments.models import (
     Payment,
@@ -33,9 +33,13 @@ def _resolve_addons(gym, addon_ids):
 
 
 def _active_memberships_locked(member):
-    """Lock the member's memberships and return those currently active."""
+    """Lock the member's memberships and return those currently active OR frozen.
+
+    Both block a new enrollment ("one active/frozen membership per member").
+    """
     rows = list(Membership.objects.select_for_update().filter(member=member))
-    return rows, [m for m in rows if m.status == MembershipStatus.ACTIVE]
+    blocking = [m for m in rows if m.status in (MembershipStatus.ACTIVE, MembershipStatus.FROZEN)]
+    return rows, blocking
 
 
 def _price_enrollment(plan, selected_addons, auto_addons, discount_paise, expected_total_paise):
@@ -210,9 +214,11 @@ def correct_membership(*, gym, actor, membership_id, plan_id=None, start_date=No
     if start_date is not None:
         membership.start_date = start_date
 
-    # Recompute end_date from (possibly corrected) start + duration.
+    # Recompute end_date from (possibly corrected) start + duration, then re-add
+    # any days previously granted by freezes so the Σ days_added invariant holds.
     # original_end_date stays pinned (immutable).
-    membership.end_date = membership.start_date + timedelta(days=membership.duration_days)
+    frozen_days = sum(f.days_added for f in membership.freezes.all())
+    membership.end_date = membership.start_date + timedelta(days=membership.duration_days + frozen_days)
 
     if addon_ids is not None:
         addons = _resolve_addons(gym, addon_ids)
@@ -276,3 +282,67 @@ def cancel_membership(*, gym, actor, membership_id, effective_date, prorated_ref
         summary="Cancelled membership",
     )
     return membership, refund
+
+
+@transaction.atomic
+def freeze_membership(*, gym, actor, membership_id, start_date=None, reason=""):
+    membership = Membership.objects.select_for_update().filter(gym=gym, id=membership_id).first()
+    if not membership:
+        raise ServiceError("Membership not found.", code="not_found", status=404)
+
+    today = ist_today()
+    start = start_date or today
+    status = membership.status_on(today)
+    if status == MembershipStatus.CANCELLED:
+        raise ServiceError("Cannot freeze a cancelled membership.", code="cannot_freeze")
+    if status == MembershipStatus.EXPIRED:
+        raise ServiceError("Cannot freeze an expired membership.", code="cannot_freeze")
+    if membership.freezes.filter(freeze_end_date__isnull=True).exists():
+        raise ServiceError("Membership is already frozen.", code="already_frozen")
+    if start > membership.end_date:
+        raise ServiceError("Freeze start is after the membership end date.", code="bad_freeze_date")
+
+    freeze = Freeze.objects.create(
+        gym=gym, branch=membership.branch, membership=membership,
+        freeze_start_date=start, reason=reason, created_by=actor,
+    )
+    audit.record(
+        actor=actor, action=AuditAction.UPDATE, entity=membership,
+        after={"frozen_from": start.isoformat(), "reason": reason},
+        summary="Froze membership",
+    )
+    return membership, freeze
+
+
+@transaction.atomic
+def unfreeze_membership(*, gym, actor, membership_id, end_date=None, reason=""):
+    membership = Membership.objects.select_for_update().filter(gym=gym, id=membership_id).first()
+    if not membership:
+        raise ServiceError("Membership not found.", code="not_found", status=404)
+
+    freeze = membership.freezes.select_for_update().filter(freeze_end_date__isnull=True).first()
+    if not freeze:
+        raise ServiceError("Membership is not currently frozen.", code="not_frozen")
+
+    end = end_date or ist_today()
+    if end < freeze.freeze_start_date:
+        raise ServiceError("Unfreeze date is before the freeze start.", code="bad_unfreeze_date")
+
+    # Day-accurate: the resume day is active again, so the member lost the days in
+    # [start, end). Extend the end_date by exactly that many days.
+    days = (end - freeze.freeze_start_date).days
+    freeze.freeze_end_date = end
+    freeze.days_added = days
+    freeze.save(update_fields=["freeze_end_date", "days_added", "updated_at"])
+
+    if days:
+        membership.end_date = membership.end_date + timedelta(days=days)
+        membership.save(update_fields=["end_date", "updated_at"])
+
+    audit.record(
+        actor=actor, action=AuditAction.UPDATE, entity=membership,
+        after={"unfrozen_on": end.isoformat(), "days_added": days,
+               "new_end_date": membership.end_date.isoformat()},
+        summary=f"Unfroze membership (+{days} days)",
+    )
+    return membership, freeze

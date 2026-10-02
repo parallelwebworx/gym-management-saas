@@ -4,7 +4,7 @@ from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 
 from common.errors import ServiceError
-from common.permissions import IsAuthenticatedInGym, IsOwner
+from common.permissions import IsAuthenticatedInGym, IsOwner, IsOwnerOrManager
 from common.responses import err, ok
 from common.viewsets import EnvelopeResponseMixin
 from members.serializers import MemberSerializer
@@ -36,6 +36,8 @@ class MembershipViewSet(
     def get_permissions(self):
         if self.action == "cancel":
             return [IsOwner()]
+        if self.action in ("freeze", "unfreeze"):
+            return [IsOwnerOrManager()]
         return super().get_permissions()
 
     def get_queryset(self):
@@ -43,7 +45,7 @@ class MembershipViewSet(
         qs = (
             Membership.objects.filter(gym_id=user.gym_id)
             .select_related("member")
-            .prefetch_related("addons")
+            .prefetch_related("addons", "freezes")
         )
         if user.role != "owner" and user.branch_id:
             qs = qs.filter(branch_id=user.branch_id)
@@ -149,6 +151,34 @@ class MembershipViewSet(
             return err(e.message, code=e.code, status=e.status)
         extra = {"refund": PaymentSerializer(refund).data} if refund else {}
         return self._envelope(membership, extra=extra)
+
+    @action(detail=True, methods=["post"])
+    def freeze(self, request, pk=None):
+        user = request.user
+        body = request.data
+        try:
+            membership, _freeze = services.freeze_membership(
+                gym=user.gym, actor=user, membership_id=pk,
+                start_date=_parse_date(body.get("start_date"), "start_date"),
+                reason=body.get("reason", ""),
+            )
+        except ServiceError as e:
+            return err(e.message, code=e.code, status=e.status)
+        return self._envelope(membership)
+
+    @action(detail=True, methods=["post"])
+    def unfreeze(self, request, pk=None):
+        user = request.user
+        body = request.data
+        try:
+            membership, _freeze = services.unfreeze_membership(
+                gym=user.gym, actor=user, membership_id=pk,
+                end_date=_parse_date(body.get("end_date"), "end_date"),
+                reason=body.get("reason", ""),
+            )
+        except ServiceError as e:
+            return err(e.message, code=e.code, status=e.status)
+        return self._envelope(membership)
 
     @action(detail=True, methods=["get"], url_path="can-correct")
     def can_correct(self, request, pk=None):

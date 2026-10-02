@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from memberships.models import Membership, MembershipAddOn
+from memberships.models import Freeze, Membership, MembershipAddOn
 
 
 class AddOnInline(admin.TabularInline):
@@ -14,3 +14,8 @@ class MembershipAdmin(admin.ModelAdmin):
     list_filter = ["plan_name"]
     search_fields = ["member__full_name", "member__phone"]
     inlines = [AddOnInline]
+
+
+@admin.register(Freeze)
+class FreezeAdmin(admin.ModelAdmin):
+    list_display = ["id", "membership", "freeze_start_date", "freeze_end_date", "days_added"]

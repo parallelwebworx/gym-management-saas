@@ -6,6 +6,7 @@ import CancelDialog from "@/components/CancelDialog.vue";
 import CorrectDialog from "@/components/CorrectDialog.vue";
 import EditPaymentDialog from "@/components/EditPaymentDialog.vue";
 import EnrollDialog from "@/components/EnrollDialog.vue";
+import FreezeDialog from "@/components/FreezeDialog.vue";
 import RefundDialog from "@/components/RefundDialog.vue";
 import { useMember } from "@/composables/useMembers";
 import { useMemberMemberships } from "@/composables/useMemberships";
@@ -31,6 +32,7 @@ const showEnroll = ref(false);
 const renewOf = ref<Membership | null>(null);
 const showCancel = ref<Membership | null>(null);
 const showCorrect = ref<Membership | null>(null);
+const freezeDialog = ref<{ membership: Membership; mode: "freeze" | "unfreeze" } | null>(null);
 const refundOf = ref<Payment | null>(null);
 const editOf = ref<Payment | null>(null);
 
@@ -54,6 +56,7 @@ const statusClass: Record<string, string> = {
   active: "bg-emerald-100 text-emerald-700",
   expired: "bg-slate-100 text-slate-500",
   cancelled: "bg-red-100 text-red-700",
+  frozen: "bg-sky-100 text-sky-700",
 };
 const kindClass: Record<string, string> = {
   refund: "text-red-600",
@@ -104,13 +107,36 @@ const kindClass: Record<string, string> = {
             {{ current.start_date }} → {{ current.end_date }}
             <span v-if="current.end_date !== current.original_end_date">(original {{ current.original_end_date }})</span>
           </div>
-          <div class="text-sm text-slate-500">Net paid: {{ formatPaise(current.net_paid_paise) }}</div>
-          <div class="flex gap-2 pt-1">
+          <div class="text-sm text-slate-500">
+            Net paid: {{ formatPaise(current.net_paid_paise) }}
+            <span v-if="current.total_days_added" class="ml-2">· +{{ current.total_days_added }} frozen day(s)</span>
+          </div>
+          <div class="flex flex-wrap gap-2 pt-1">
             <button class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50" @click="openRenew(current)">Renew</button>
             <button class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50" @click="showCorrect = current">Correct</button>
+            <button
+              v-if="current.status === 'active'"
+              class="rounded border border-sky-200 px-3 py-1.5 text-sm text-sky-700 hover:bg-sky-50"
+              @click="freezeDialog = { membership: current, mode: 'freeze' }"
+            >
+              Freeze
+            </button>
+            <button
+              v-if="current.status === 'frozen'"
+              class="rounded border border-sky-200 px-3 py-1.5 text-sm text-sky-700 hover:bg-sky-50"
+              @click="freezeDialog = { membership: current, mode: 'unfreeze' }"
+            >
+              Unfreeze
+            </button>
             <button v-if="isOwner && current.status !== 'cancelled'" class="rounded border border-red-200 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50" @click="showCancel = current">
               Cancel
             </button>
+          </div>
+          <div v-if="current.freezes.length" class="pt-2 text-xs text-slate-400">
+            Freeze history:
+            <span v-for="f in current.freezes" :key="f.id" class="mr-2">
+              {{ f.freeze_start_date }}→{{ f.freeze_end_date || 'open' }}{{ f.days_added ? ` (+${f.days_added}d)` : '' }}
+            </span>
           </div>
         </div>
         <p v-else class="text-sm text-slate-400">No membership yet.</p>
@@ -152,6 +178,13 @@ const kindClass: Record<string, string> = {
       <EnrollDialog v-if="showEnroll" :member-id="member.id" :renew-of="renewOf" @close="closeEnroll" @done="closeEnroll" />
       <CancelDialog v-if="showCancel" :membership="showCancel" @close="showCancel = null" @done="showCancel = null" />
       <CorrectDialog v-if="showCorrect" :membership="showCorrect" @close="showCorrect = null" @done="showCorrect = null" />
+      <FreezeDialog
+        v-if="freezeDialog"
+        :membership="freezeDialog.membership"
+        :mode="freezeDialog.mode"
+        @close="freezeDialog = null"
+        @done="freezeDialog = null"
+      />
       <RefundDialog v-if="refundOf" :payment="refundOf" @close="refundOf = null" @done="refundOf = null" />
       <EditPaymentDialog v-if="editOf" :payment="editOf" @close="editOf = null" @done="editOf = null" />
     </template>
