@@ -64,7 +64,7 @@ function onListKey(e: KeyboardEvent) {
 
 <template>
   <div v-if="open" class="fixed inset-0 z-50 flex items-start justify-center bg-black/30 p-4 pt-24" @click.self="open = false">
-    <div class="w-full max-w-lg rounded-xl bg-white shadow-xl border border-slate-200 overflow-hidden">
+    <div class="w-full max-w-lg rounded-xl bg-card shadow-xl border border-border overflow-hidden">
       <input
         v-model="query"
         autofocus
@@ -77,16 +77,16 @@ function onListKey(e: KeyboardEvent) {
           v-for="(m, i) in results"
           :key="m.id"
           class="flex items-center justify-between px-4 py-2 text-sm cursor-pointer"
-          :class="i === active ? 'bg-slate-100' : 'hover:bg-slate-50'"
+          :class="i === active ? 'bg-muted' : 'hover:bg-muted/40'"
           @mouseenter="active = i"
           @click="go(m)"
         >
           <span>{{ m.full_name }}</span>
-          <span class="text-slate-400">{{ m.phone }}</span>
+          <span class="text-muted-foreground">{{ m.phone }}</span>
         </li>
       </ul>
-      <p v-else-if="query" class="px-4 py-6 text-center text-sm text-slate-400">No matches</p>
-      <p v-else class="px-4 py-6 text-center text-sm text-slate-400">Type to search members</p>
+      <p v-else-if="query" class="px-4 py-6 text-center text-sm text-muted-foreground">No matches</p>
+      <p v-else class="px-4 py-6 text-center text-sm text-muted-foreground">Type to search members</p>
     </div>
   </div>
 </template>

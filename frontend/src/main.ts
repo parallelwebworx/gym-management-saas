@@ -1,4 +1,5 @@
 import { VueQueryPlugin } from "@tanstack/vue-query";
+import { MotionPlugin } from "@vueuse/motion";
 import { createPinia } from "pinia";
 import { createApp } from "vue";
 
@@ -10,4 +11,5 @@ const app = createApp(App);
 app.use(createPinia());
 app.use(router);
 app.use(VueQueryPlugin);
+app.use(MotionPlugin);
 app.mount("#app");

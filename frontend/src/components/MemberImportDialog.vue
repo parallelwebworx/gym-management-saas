@@ -64,21 +64,21 @@ const badge: Record<string, string> = {
     <div class="space-y-4">
       <div class="flex items-center justify-between">
         <input type="file" accept=".csv" @change="onFile" class="text-sm" />
-        <button class="text-sm text-slate-600 underline" @click="downloadTemplate">
+        <button class="text-sm text-muted-foreground underline" @click="downloadTemplate">
           Download template
         </button>
       </div>
 
       <div class="flex gap-2">
         <button
-          class="rounded border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50 disabled:opacity-50"
+          class="rounded border border-input px-3 py-2 text-sm hover:bg-muted/40 disabled:opacity-50"
           :disabled="!file || importMembers.isPending.value"
           @click="runPreview"
         >
           Preview
         </button>
         <button
-          class="rounded bg-slate-900 px-3 py-2 text-sm text-white hover:bg-slate-800 disabled:opacity-50"
+          class="rounded bg-primary px-3 py-2 text-sm text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           :disabled="!preview || preview.summary.valid === 0 || preview.committed"
           @click="runCommit"
         >
@@ -98,9 +98,9 @@ const badge: Record<string, string> = {
             ✓ Inserted {{ preview.inserted }}
           </span>
         </div>
-        <div class="max-h-64 overflow-auto rounded border border-slate-200">
+        <div class="max-h-64 overflow-auto rounded border border-border">
           <table class="w-full text-sm">
-            <thead class="bg-slate-50 text-left text-slate-500">
+            <thead class="bg-muted/40 text-left text-muted-foreground">
               <tr>
                 <th class="px-3 py-2">Row</th>
                 <th class="px-3 py-2">Name</th>
@@ -117,7 +117,7 @@ const badge: Record<string, string> = {
                 <td class="px-3 py-1.5">
                   <span class="rounded px-2 py-0.5 text-xs" :class="badge[r.status]">{{ r.status }}</span>
                 </td>
-                <td class="px-3 py-1.5 text-xs text-slate-500">{{ r.errors.join("; ") }}</td>
+                <td class="px-3 py-1.5 text-xs text-muted-foreground">{{ r.errors.join("; ") }}</td>
               </tr>
             </tbody>
           </table>

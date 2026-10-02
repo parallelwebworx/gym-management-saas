@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { Phone } from "@lucide/vue";
 import { useRouter } from "vue-router";
 
+import Avatar from "@/components/ui/Avatar.vue";
 import type { TodayRow } from "@/composables/useToday";
 
 defineProps<{
@@ -18,32 +20,33 @@ function wa(phone: string) {
 </script>
 
 <template>
-  <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
-    <p v-if="rows.length === 0" class="px-4 py-6 text-center text-sm text-slate-400">{{ empty }}</p>
-    <table v-else class="w-full text-sm">
-      <tbody>
-        <tr v-for="r in rows" :key="r.membership_id" class="border-t first:border-t-0 hover:bg-slate-50">
-          <td class="px-4 py-2 cursor-pointer" @click="router.push(`/members/${r.member_id}`)">
-            <div class="font-medium text-slate-800">{{ r.member_name }}</div>
-            <div class="text-xs text-slate-400">{{ r.plan_name }} · {{ r.phone }}</div>
-          </td>
-          <td class="px-4 py-2 text-slate-500">
-            {{ showDays ? `${r.days_left} day(s) left` : r.end_date }}
-          </td>
-          <td class="px-4 py-2 text-right whitespace-nowrap">
-            <template v-if="hideActions">
-              <span v-if="r.last_reminded_at" class="text-xs text-emerald-600">contacted</span>
-            </template>
-            <template v-else>
-              <a :href="`tel:${r.phone}`" class="text-slate-600 hover:text-slate-900 mr-3">Call</a>
-              <a :href="wa(r.phone)" target="_blank" class="text-emerald-700 hover:text-emerald-800 mr-3">WhatsApp</a>
-              <button class="text-xs text-slate-500 hover:text-slate-800" @click="emit('remind', r, 'whatsapp')">
-                {{ r.last_reminded_at ? "✓ reminded" : "Log reminder" }}
-              </button>
-            </template>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="rounded-xl border border-border bg-card shadow-card overflow-hidden">
+    <p v-if="rows.length === 0" class="px-4 py-8 text-center text-sm text-muted-foreground">{{ empty }}</p>
+    <ul v-else class="divide-y divide-border">
+      <li v-for="r in rows" :key="r.membership_id" class="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/40">
+        <Avatar :name="r.member_name" size="sm" />
+        <div class="min-w-0 flex-1 cursor-pointer" @click="router.push(`/members/${r.member_id}`)">
+          <div class="truncate font-medium text-foreground">{{ r.member_name }}</div>
+          <div class="truncate text-xs text-muted-foreground">{{ r.plan_name }} · {{ r.phone }}</div>
+        </div>
+        <div class="shrink-0 text-xs text-muted-foreground">
+          {{ showDays ? `${r.days_left}d left` : r.end_date }}
+        </div>
+        <div v-if="!hideActions" class="flex shrink-0 items-center gap-1">
+          <a :href="`tel:${r.phone}`" class="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" title="Call">
+            <Phone class="h-4 w-4" />
+          </a>
+          <a :href="wa(r.phone)" target="_blank" class="rounded-md px-2 py-1 text-xs font-medium text-success transition-colors hover:bg-success/10" title="WhatsApp">WhatsApp</a>
+          <button
+            class="rounded-md px-2 py-1 text-xs font-medium transition-colors"
+            :class="r.last_reminded_at ? 'text-success' : 'text-muted-foreground hover:bg-muted hover:text-foreground'"
+            @click="emit('remind', r, 'whatsapp')"
+          >
+            {{ r.last_reminded_at ? "✓ reminded" : "Remind" }}
+          </button>
+        </div>
+        <span v-else-if="r.last_reminded_at" class="shrink-0 text-xs text-success">contacted</span>
+      </li>
+    </ul>
   </div>
 </template>

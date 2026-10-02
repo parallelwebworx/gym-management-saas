@@ -27,7 +27,8 @@ services:
       DATABASE_URL: postgres://postgres:postgres@db:5432/gym_saas
       CORS_ALLOWED_ORIGINS: http://localhost:5173
     ports:
-      - "8000:8000"
+      # Host 8010 -> container 8000 (8000 may be taken by other local services).
+      - "8010:8000"
     depends_on:
       db:
         condition: service_healthy

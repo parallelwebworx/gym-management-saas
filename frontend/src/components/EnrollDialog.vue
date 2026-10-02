@@ -66,7 +66,7 @@ async function submit() {
   }
 }
 
-const input = "w-full rounded border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400";
+const input = "w-full rounded border border-input px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring/40";
 const pending = computed(() => enroll.isPending.value || renew.isPending.value);
 </script>
 
@@ -74,7 +74,7 @@ const pending = computed(() => enroll.isPending.value || renew.isPending.value);
   <BaseModal :title="isRenew ? 'Renew membership' : 'Enroll in a plan'" @close="emit('close')">
     <form class="space-y-3" @submit.prevent="submit">
       <div>
-        <label class="text-sm text-slate-600">Plan</label>
+        <label class="text-sm text-muted-foreground">Plan</label>
         <select v-model.number="form.plan_id" :class="input">
           <option :value="0" disabled>Select a plan…</option>
           <option v-for="p in plans?.results.filter((x) => x.is_active)" :key="p.id" :value="p.id">
@@ -84,18 +84,18 @@ const pending = computed(() => enroll.isPending.value || renew.isPending.value);
       </div>
 
       <div v-if="addons && addons.results.length">
-        <label class="text-sm text-slate-600">Add-ons</label>
+        <label class="text-sm text-muted-foreground">Add-ons</label>
         <div class="mt-1 space-y-1">
           <label v-for="a in addons.results.filter((x) => x.is_active)" :key="a.id" class="flex items-center gap-2 text-sm">
             <input type="checkbox" :value="a.id" v-model="form.addon_ids" />
             {{ a.name }} — {{ formatPaise(a.price_paise) }}
-            <span v-if="a.auto_apply_on_first_enrollment" class="text-xs text-slate-400">(auto on 1st enroll)</span>
+            <span v-if="a.auto_apply_on_first_enrollment" class="text-xs text-muted-foreground">(auto on 1st enroll)</span>
           </label>
         </div>
       </div>
 
       <div v-if="isRenew">
-        <label class="text-sm text-slate-600">Start</label>
+        <label class="text-sm text-muted-foreground">Start</label>
         <select v-model="form.start_mode" :class="input">
           <option value="from_previous_end">From previous end date</option>
           <option value="from_today">From today</option>
@@ -106,11 +106,11 @@ const pending = computed(() => enroll.isPending.value || renew.isPending.value);
 
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="text-sm text-slate-600">Discount (₹)</label>
+          <label class="text-sm text-muted-foreground">Discount (₹)</label>
           <input v-model.number="form.discount_rupees" type="number" min="0" step="0.01" :class="input" />
         </div>
         <div>
-          <label class="text-sm text-slate-600">Method</label>
+          <label class="text-sm text-muted-foreground">Method</label>
           <select v-model="form.method" :class="input">
             <option value="cash">Cash</option>
             <option value="card">Card</option>
@@ -121,19 +121,19 @@ const pending = computed(() => enroll.isPending.value || renew.isPending.value);
         </div>
       </div>
 
-      <div class="rounded bg-slate-50 px-3 py-2 text-sm flex items-center justify-between">
-        <span class="text-slate-500">Total payable</span>
+      <div class="rounded bg-muted/40 px-3 py-2 text-sm flex items-center justify-between">
+        <span class="text-muted-foreground">Total payable</span>
         <span class="font-semibold">{{ formatPaise(total) }}</span>
       </div>
-      <p v-if="!isRenew" class="text-xs text-slate-400">
+      <p v-if="!isRenew" class="text-xs text-muted-foreground">
         Auto-applied fees (e.g. joining) are added by the server on a member's first enrollment.
       </p>
 
       <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
 
       <div class="flex justify-end gap-2 pt-1">
-        <button type="button" class="rounded px-3 py-2 text-sm text-slate-600 hover:bg-slate-100" @click="emit('close')">Cancel</button>
-        <button type="submit" :disabled="pending" class="rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-60">
+        <button type="button" class="rounded px-3 py-2 text-sm text-muted-foreground hover:bg-muted" @click="emit('close')">Cancel</button>
+        <button type="submit" :disabled="pending" class="rounded bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
           {{ pending ? "Saving…" : isRenew ? "Renew" : "Enroll & collect" }}
         </button>
       </div>

@@ -41,17 +41,17 @@ const planTypeLabel: Record<string, string> = {
 
 <template>
   <div class="space-y-8">
-    <h1 class="text-xl font-semibold text-slate-800">Catalogue</h1>
+    <h1 class="text-xl font-semibold text-foreground">Catalogue</h1>
 
     <!-- Plans -->
     <section class="space-y-3">
       <div class="flex items-center justify-between">
-        <h2 class="font-medium text-slate-700">Plans</h2>
-        <button class="rounded bg-slate-900 px-3 py-1.5 text-sm text-white hover:bg-slate-800" @click="addPlan">+ Add plan</button>
+        <h2 class="font-medium text-foreground">Plans</h2>
+        <button class="rounded bg-primary px-3 py-1.5 text-sm text-primary-foreground hover:bg-primary/90" @click="addPlan">+ Add plan</button>
       </div>
-      <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
+      <div class="rounded-xl border border-border bg-card overflow-hidden">
         <table class="w-full text-sm">
-          <thead class="bg-slate-50 text-left text-slate-500">
+          <thead class="bg-muted/40 text-left text-muted-foreground">
             <tr>
               <th class="px-4 py-2">Name</th><th class="px-4 py-2">Type</th>
               <th class="px-4 py-2">Duration</th><th class="px-4 py-2">Price</th>
@@ -59,8 +59,8 @@ const planTypeLabel: Record<string, string> = {
             </tr>
           </thead>
           <tbody>
-            <tr v-if="plansLoading"><td colspan="6" class="px-4 py-6 text-center text-slate-400">Loading…</td></tr>
-            <tr v-else-if="plans && plans.results.length === 0"><td colspan="6" class="px-4 py-6 text-center text-slate-400">No plans yet.</td></tr>
+            <tr v-if="plansLoading"><td colspan="6" class="px-4 py-6 text-center text-muted-foreground">Loading…</td></tr>
+            <tr v-else-if="plans && plans.results.length === 0"><td colspan="6" class="px-4 py-6 text-center text-muted-foreground">No plans yet.</td></tr>
             <tr v-for="p in plans?.results" :key="p.id" class="border-t">
               <td class="px-4 py-2">{{ p.name }}</td>
               <td class="px-4 py-2">{{ planTypeLabel[p.plan_type] }}</td>
@@ -68,7 +68,7 @@ const planTypeLabel: Record<string, string> = {
               <td class="px-4 py-2">{{ formatPaise(p.price_paise) }}</td>
               <td class="px-4 py-2">{{ p.is_active ? "Yes" : "No" }}</td>
               <td class="px-4 py-2 text-right">
-                <button class="text-slate-500 hover:text-slate-800 mr-3" @click="editPlan(p)">Edit</button>
+                <button class="text-muted-foreground hover:text-foreground mr-3" @click="editPlan(p)">Edit</button>
                 <button class="text-red-500 hover:text-red-700" @click="removePlan(p)">Delete</button>
               </td>
             </tr>
@@ -80,12 +80,12 @@ const planTypeLabel: Record<string, string> = {
     <!-- Add-ons -->
     <section class="space-y-3">
       <div class="flex items-center justify-between">
-        <h2 class="font-medium text-slate-700">Add-ons</h2>
-        <button class="rounded bg-slate-900 px-3 py-1.5 text-sm text-white hover:bg-slate-800" @click="addAddOn">+ Add add-on</button>
+        <h2 class="font-medium text-foreground">Add-ons</h2>
+        <button class="rounded bg-primary px-3 py-1.5 text-sm text-primary-foreground hover:bg-primary/90" @click="addAddOn">+ Add add-on</button>
       </div>
-      <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
+      <div class="rounded-xl border border-border bg-card overflow-hidden">
         <table class="w-full text-sm">
-          <thead class="bg-slate-50 text-left text-slate-500">
+          <thead class="bg-muted/40 text-left text-muted-foreground">
             <tr>
               <th class="px-4 py-2">Name</th><th class="px-4 py-2">Type</th>
               <th class="px-4 py-2">Price</th><th class="px-4 py-2">Auto-apply</th>
@@ -93,8 +93,8 @@ const planTypeLabel: Record<string, string> = {
             </tr>
           </thead>
           <tbody>
-            <tr v-if="addonsLoading"><td colspan="6" class="px-4 py-6 text-center text-slate-400">Loading…</td></tr>
-            <tr v-else-if="addons && addons.results.length === 0"><td colspan="6" class="px-4 py-6 text-center text-slate-400">No add-ons yet.</td></tr>
+            <tr v-if="addonsLoading"><td colspan="6" class="px-4 py-6 text-center text-muted-foreground">Loading…</td></tr>
+            <tr v-else-if="addons && addons.results.length === 0"><td colspan="6" class="px-4 py-6 text-center text-muted-foreground">No add-ons yet.</td></tr>
             <tr v-for="a in addons?.results" :key="a.id" class="border-t">
               <td class="px-4 py-2">{{ a.name }}</td>
               <td class="px-4 py-2 capitalize">{{ a.addon_type.replace("_", "-") }}</td>
@@ -102,7 +102,7 @@ const planTypeLabel: Record<string, string> = {
               <td class="px-4 py-2">{{ a.auto_apply_on_first_enrollment ? "Yes" : "No" }}</td>
               <td class="px-4 py-2">{{ a.is_active ? "Yes" : "No" }}</td>
               <td class="px-4 py-2 text-right">
-                <button class="text-slate-500 hover:text-slate-800 mr-3" @click="editAddOn(a)">Edit</button>
+                <button class="text-muted-foreground hover:text-foreground mr-3" @click="editAddOn(a)">Edit</button>
                 <button class="text-red-500 hover:text-red-700" @click="removeAddOn(a)">Delete</button>
               </td>
             </tr>
