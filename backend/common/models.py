@@ -88,4 +88,6 @@ class TenantScoped(TimeStampedModel):
 
     class Meta:
         abstract = True
-        base_manager_name = "objects"
+        # Internal ops (refresh_from_db, related lookups) must see ALL rows,
+        # including soft-deleted ones; ``objects`` stays the filtering default.
+        base_manager_name = "all_objects"

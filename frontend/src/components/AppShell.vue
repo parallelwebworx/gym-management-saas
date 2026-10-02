@@ -2,6 +2,7 @@
 import { computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 
+import CommandPalette from "@/components/CommandPalette.vue";
 import { useAuthStore } from "@/stores/auth";
 
 const auth = useAuthStore();
@@ -72,6 +73,9 @@ function logout() {
           </span>
         </div>
         <div class="flex items-center gap-3 text-sm">
+          <span class="hidden items-center gap-1 rounded border border-slate-200 px-2 py-0.5 text-xs text-slate-400 sm:flex">
+            Search <kbd class="font-sans">⌘K</kbd>
+          </span>
           <span class="text-slate-500">{{ auth.user?.email }}</span>
           <button class="text-slate-600 hover:text-slate-900" @click="logout">Sign out</button>
         </div>
@@ -81,5 +85,7 @@ function logout() {
         <RouterView />
       </main>
     </div>
+
+    <CommandPalette />
   </div>
 </template>
