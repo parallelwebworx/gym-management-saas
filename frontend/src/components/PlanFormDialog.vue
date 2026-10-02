@@ -35,19 +35,19 @@ async function submit() {
     error.value = e?.response?.data?.details?.name?.[0] ?? e?.response?.data?.error ?? "Save failed";
   }
 }
-const input = "w-full rounded border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400";
+const input = "w-full rounded border border-input px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring/40";
 </script>
 
 <template>
   <BaseModal :title="plan ? 'Edit plan' : 'Add plan'" @close="emit('close')">
     <form class="space-y-3" @submit.prevent="submit">
       <div>
-        <label class="text-sm text-slate-600">Name</label>
+        <label class="text-sm text-muted-foreground">Name</label>
         <input v-model="form.name" required :class="input" />
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="text-sm text-slate-600">Type</label>
+          <label class="text-sm text-muted-foreground">Type</label>
           <select v-model="form.plan_type" :class="input">
             <option value="general">General</option>
             <option value="cardio">Cardio</option>
@@ -56,21 +56,21 @@ const input = "w-full rounded border border-slate-300 px-3 py-2 text-sm focus:ou
           </select>
         </div>
         <div>
-          <label class="text-sm text-slate-600">Duration (days)</label>
+          <label class="text-sm text-muted-foreground">Duration (days)</label>
           <input v-model.number="form.duration_days" type="number" min="1" required :class="input" />
         </div>
       </div>
       <div>
-        <label class="text-sm text-slate-600">Price (₹)</label>
+        <label class="text-sm text-muted-foreground">Price (₹)</label>
         <input v-model.number="form.price_rupees" type="number" min="0" step="0.01" required :class="input" />
       </div>
-      <label class="flex items-center gap-2 text-sm text-slate-600">
+      <label class="flex items-center gap-2 text-sm text-muted-foreground">
         <input type="checkbox" v-model="form.is_active" /> Active
       </label>
       <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
       <div class="flex justify-end gap-2 pt-2">
-        <button type="button" class="rounded px-3 py-2 text-sm text-slate-600 hover:bg-slate-100" @click="emit('close')">Cancel</button>
-        <button type="submit" :disabled="save.isPending.value" class="rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-60">
+        <button type="button" class="rounded px-3 py-2 text-sm text-muted-foreground hover:bg-muted" @click="emit('close')">Cancel</button>
+        <button type="submit" :disabled="save.isPending.value" class="rounded bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
           {{ save.isPending.value ? "Saving…" : "Save" }}
         </button>
       </div>

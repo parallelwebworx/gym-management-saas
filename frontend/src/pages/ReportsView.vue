@@ -38,19 +38,19 @@ const sevClass: Record<string, string> = {
 <template>
   <div class="space-y-4">
     <div class="flex flex-wrap items-center justify-between gap-2">
-      <h1 class="text-xl font-semibold text-slate-800">Reports</h1>
+      <h1 class="text-xl font-semibold text-foreground">Reports</h1>
       <div class="flex items-center gap-2 text-sm">
-        <label>From <input v-model="period.from" type="date" class="rounded border border-slate-300 px-2 py-1" /></label>
-        <label>To <input v-model="period.to" type="date" class="rounded border border-slate-300 px-2 py-1" /></label>
+        <label>From <input v-model="period.from" type="date" class="rounded border border-input px-2 py-1" /></label>
+        <label>To <input v-model="period.to" type="date" class="rounded border border-input px-2 py-1" /></label>
       </div>
     </div>
 
-    <div class="flex gap-1 border-b border-slate-200">
+    <div class="flex gap-1 border-b border-border">
       <button
         v-for="t in tabs"
         :key="t.key"
         class="px-3 py-2 text-sm -mb-px border-b-2"
-        :class="tab === t.key ? 'border-slate-800 text-slate-900 font-medium' : 'border-transparent text-slate-500 hover:text-slate-700'"
+        :class="tab === t.key ? 'border-slate-800 text-foreground font-medium' : 'border-transparent text-muted-foreground hover:text-foreground'"
         @click="tab = t.key"
       >
         {{ t.label }}
@@ -60,25 +60,25 @@ const sevClass: Record<string, string> = {
     <!-- Overview -->
     <div v-if="tab === 'overview'" class="space-y-4">
       <div v-if="overview.data.value" class="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <div class="rounded-xl border border-slate-200 bg-white p-4">
-          <div class="text-sm text-slate-500">Net revenue</div>
+        <div class="rounded-xl border border-border bg-card p-4">
+          <div class="text-sm text-muted-foreground">Net revenue</div>
           <div class="mt-1 text-2xl font-semibold">{{ formatPaise(overview.data.value.overview.net_paise) }}</div>
           <div v-if="overview.data.value.overview.revenue_change_pct !== null" class="text-xs"
                :class="overview.data.value.overview.revenue_change_pct >= 0 ? 'text-emerald-600' : 'text-red-600'">
             {{ overview.data.value.overview.revenue_change_pct }}% vs previous
           </div>
         </div>
-        <div class="rounded-xl border border-slate-200 bg-white p-4">
-          <div class="text-sm text-slate-500">Discounts</div>
+        <div class="rounded-xl border border-border bg-card p-4">
+          <div class="text-sm text-muted-foreground">Discounts</div>
           <div class="mt-1 text-2xl font-semibold">{{ formatPaise(overview.data.value.overview.discount_paise) }}</div>
-          <div class="text-xs text-slate-400">{{ overview.data.value.overview.discount_rate_pct }}% of list</div>
+          <div class="text-xs text-muted-foreground">{{ overview.data.value.overview.discount_rate_pct }}% of list</div>
         </div>
-        <div class="rounded-xl border border-slate-200 bg-white p-4">
-          <div class="text-sm text-slate-500">Refunds</div>
+        <div class="rounded-xl border border-border bg-card p-4">
+          <div class="text-sm text-muted-foreground">Refunds</div>
           <div class="mt-1 text-2xl font-semibold">{{ formatPaise(overview.data.value.overview.refunds_paise) }}</div>
         </div>
-        <div class="rounded-xl border border-slate-200 bg-white p-4">
-          <div class="text-sm text-slate-500">Enrollments / Renewals</div>
+        <div class="rounded-xl border border-border bg-card p-4">
+          <div class="text-sm text-muted-foreground">Enrollments / Renewals</div>
           <div class="mt-1 text-2xl font-semibold">
             {{ overview.data.value.overview.enrollments }} / {{ overview.data.value.overview.renewals }}
           </div>
@@ -93,7 +93,7 @@ const sevClass: Record<string, string> = {
       </div>
       <p v-else-if="overview.data.value" class="text-sm text-emerald-600">No anomalies detected this period.</p>
 
-      <div v-if="overview.data.value" class="rounded-xl border border-slate-200 bg-white p-4">
+      <div v-if="overview.data.value" class="rounded-xl border border-border bg-card p-4">
         <RevenueChart :points="overview.data.value.trend" />
       </div>
     </div>
@@ -101,9 +101,9 @@ const sevClass: Record<string, string> = {
     <!-- Revenue -->
     <div v-else-if="tab === 'revenue'" class="space-y-3">
       <div class="flex justify-end">
-        <button class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50" @click="downloadReport('/reports/revenue/', period)">Export Excel</button>
+        <button class="rounded border border-input px-3 py-1.5 text-sm hover:bg-muted/40" @click="downloadReport('/reports/revenue/', period)">Export Excel</button>
       </div>
-      <div v-if="revenue.data.value" class="rounded-xl border border-slate-200 bg-white p-4">
+      <div v-if="revenue.data.value" class="rounded-xl border border-border bg-card p-4">
         <RevenueChart :points="revenue.data.value.series" />
       </div>
     </div>
@@ -111,13 +111,13 @@ const sevClass: Record<string, string> = {
     <!-- Plans -->
     <div v-else-if="tab === 'plans'" class="space-y-3">
       <div class="flex justify-end">
-        <button class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50" @click="downloadReport('/reports/plans/', period)">Export Excel</button>
+        <button class="rounded border border-input px-3 py-1.5 text-sm hover:bg-muted/40" @click="downloadReport('/reports/plans/', period)">Export Excel</button>
       </div>
-      <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
+      <div class="rounded-xl border border-border bg-card overflow-hidden">
         <table class="w-full text-sm">
-          <thead class="bg-slate-50 text-left text-slate-500"><tr><th class="px-4 py-2">Plan</th><th class="px-4 py-2">Sales</th><th class="px-4 py-2">Revenue</th></tr></thead>
+          <thead class="bg-muted/40 text-left text-muted-foreground"><tr><th class="px-4 py-2">Plan</th><th class="px-4 py-2">Sales</th><th class="px-4 py-2">Revenue</th></tr></thead>
           <tbody>
-            <tr v-if="plans.data.value && plans.data.value.plans.length === 0"><td colspan="3" class="px-4 py-6 text-center text-slate-400">No sales in this period.</td></tr>
+            <tr v-if="plans.data.value && plans.data.value.plans.length === 0"><td colspan="3" class="px-4 py-6 text-center text-muted-foreground">No sales in this period.</td></tr>
             <tr v-for="p in plans.data.value?.plans" :key="p.plan_name" class="border-t">
               <td class="px-4 py-2">{{ p.plan_name }}</td>
               <td class="px-4 py-2">{{ p.count }}</td>
@@ -131,15 +131,15 @@ const sevClass: Record<string, string> = {
     <!-- Discounts -->
     <div v-else class="space-y-3">
       <div class="flex justify-end">
-        <button class="rounded border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50" @click="downloadReport('/reports/discounts/', period)">Export Excel</button>
+        <button class="rounded border border-input px-3 py-1.5 text-sm hover:bg-muted/40" @click="downloadReport('/reports/discounts/', period)">Export Excel</button>
       </div>
-      <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
+      <div class="rounded-xl border border-border bg-card overflow-hidden">
         <table class="w-full text-sm">
-          <thead class="bg-slate-50 text-left text-slate-500">
+          <thead class="bg-muted/40 text-left text-muted-foreground">
             <tr><th class="px-4 py-2">Staff</th><th class="px-4 py-2">Sales</th><th class="px-4 py-2">Total discount</th><th class="px-4 py-2">Avg discount</th><th class="px-4 py-2">Gross</th></tr>
           </thead>
           <tbody>
-            <tr v-if="discounts.data.value && discounts.data.value.staff.length === 0"><td colspan="5" class="px-4 py-6 text-center text-slate-400">No data.</td></tr>
+            <tr v-if="discounts.data.value && discounts.data.value.staff.length === 0"><td colspan="5" class="px-4 py-6 text-center text-muted-foreground">No data.</td></tr>
             <tr v-for="s in discounts.data.value?.staff" :key="s.staff_id ?? s.staff_name" class="border-t">
               <td class="px-4 py-2">{{ s.staff_name }}</td>
               <td class="px-4 py-2">{{ s.sales }}</td>

@@ -13,6 +13,8 @@ export default defineConfig({
   server: {
     host: true,
     port: 5173,
+    // File-watch events don't cross the Docker/Colima mount, so poll for HMR.
+    watch: { usePolling: true, interval: 300 },
     proxy: {
       "/api": {
         target: process.env.VITE_API_TARGET ?? "http://localhost:8000",

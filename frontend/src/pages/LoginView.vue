@@ -27,32 +27,32 @@ async function submit() {
 <template>
   <div class="min-h-screen flex items-center justify-center px-4">
     <form
-      class="w-full max-w-sm bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4"
+      class="w-full max-w-sm bg-card rounded-xl shadow-sm border border-border p-6 space-y-4"
       @submit.prevent="submit"
     >
-      <h1 class="text-lg font-semibold text-slate-800">Sign in</h1>
+      <h1 class="text-lg font-semibold text-foreground">Sign in</h1>
 
       <div class="space-y-1">
-        <label class="text-sm text-slate-600" for="email">Email</label>
+        <label class="text-sm text-muted-foreground" for="email">Email</label>
         <input
           id="email"
           v-model="email"
           type="email"
           autocomplete="username"
           required
-          class="w-full rounded border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
+          class="w-full rounded border border-input px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
         />
       </div>
 
       <div class="space-y-1">
-        <label class="text-sm text-slate-600" for="password">Password</label>
+        <label class="text-sm text-muted-foreground" for="password">Password</label>
         <input
           id="password"
           v-model="password"
           type="password"
           autocomplete="current-password"
           required
-          class="w-full rounded border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
+          class="w-full rounded border border-input px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
         />
       </div>
 
@@ -61,7 +61,7 @@ async function submit() {
       <button
         type="submit"
         :disabled="auth.loading"
-        class="w-full rounded bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-60"
+        class="w-full rounded bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
       >
         {{ auth.loading ? "Signing in…" : "Sign in" }}
       </button>

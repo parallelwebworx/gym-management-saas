@@ -67,24 +67,24 @@ async function submit() {
 }
 
 const input =
-  "w-full rounded border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400";
+  "w-full rounded border border-input px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring/40";
 </script>
 
 <template>
   <BaseModal :title="member ? 'Edit member' : 'Add member'" @close="emit('close')">
     <form class="space-y-3" @submit.prevent="submit">
       <div>
-        <label class="text-sm text-slate-600">Full name</label>
+        <label class="text-sm text-muted-foreground">Full name</label>
         <input v-model="form.full_name" required :class="input" />
       </div>
       <div>
-        <label class="text-sm text-slate-600">Phone</label>
+        <label class="text-sm text-muted-foreground">Phone</label>
         <input v-model="form.phone" required placeholder="+91 98765 43210" :class="input" />
         <p v-if="phoneWarning" class="mt-1 text-xs text-amber-600">⚠ {{ phoneWarning }}</p>
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="text-sm text-slate-600">Gender</label>
+          <label class="text-sm text-muted-foreground">Gender</label>
           <select v-model="form.gender" :class="input">
             <option value="unspecified">Unspecified</option>
             <option value="male">Male</option>
@@ -93,33 +93,33 @@ const input =
           </select>
         </div>
         <div>
-          <label class="text-sm text-slate-600">Date of birth</label>
+          <label class="text-sm text-muted-foreground">Date of birth</label>
           <input v-model="form.date_of_birth" type="date" :class="input" />
         </div>
       </div>
       <div>
-        <label class="text-sm text-slate-600">Email</label>
+        <label class="text-sm text-muted-foreground">Email</label>
         <input v-model="form.email" type="email" :class="input" />
       </div>
       <div>
-        <label class="text-sm text-slate-600">Address</label>
+        <label class="text-sm text-muted-foreground">Address</label>
         <input v-model="form.address" :class="input" />
       </div>
       <div>
-        <label class="text-sm text-slate-600">Notes</label>
+        <label class="text-sm text-muted-foreground">Notes</label>
         <textarea v-model="form.notes" rows="2" :class="input" />
       </div>
 
       <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
 
       <div class="flex justify-end gap-2 pt-2">
-        <button type="button" class="rounded px-3 py-2 text-sm text-slate-600 hover:bg-slate-100" @click="emit('close')">
+        <button type="button" class="rounded px-3 py-2 text-sm text-muted-foreground hover:bg-muted" @click="emit('close')">
           Cancel
         </button>
         <button
           type="submit"
           :disabled="save.isPending.value"
-          class="rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-60"
+          class="rounded bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
         >
           {{ save.isPending.value ? "Saving…" : "Save" }}
         </button>
